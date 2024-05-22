@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="styless.css">
+</head>
+<body>
+    <header>
+        <h1>Employee Dashboard</h1>
+        <button id="logout-btn" onclick="logout()">Logout</button>
+    </header>
+    <div class="container">
+        <aside>
+            <div class="menu-item" onclick="showSection('employee-details')">Employee Details</div>
+        </aside>
+        <main>
+            <section id="employee-details" class="content-section">
+                <h2>Employee Details</h2>
+                <table id="employee-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Score</th>
+                            <th>Behavior</th>
+                            <th>Goal</th>
+                            <th>Edit</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+                <button onclick="addRow()">Add Row</button>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', fetchEmpDetails);
+
+        async function fetchEmpDetails() {
+            const response = await fetch('crud_operations.php');
+            const data = await response.json();
+            const tableBody = document.querySelector('#employee-table tbody');
+            tableBody.innerHTML = '';
+            data.forEach(emp => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="text" value="${emp.id}" readonly /></td>
+                    <td><input type="text" value="${emp.score}" /></td>
+                    <td><input type="text" value="${emp.behavior}" /></td>
+                    <td><input type="text" value="${emp.goal}" /></td>
+                    <td><button onclick="editItem(${emp.id}, this)">Edit</button></td>
+                    <td><button onclick="deleteItem(${emp.id})">Delete</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        async function addEmpDetail(detail) {
+            const response = await fetch('crud_operations.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(detail)
+            });
+            const data = await response.json();
+            console.log(data);
+            fetchEmpDetails();
+        }
+
+        async function updateEmpDetail(detail) {
+            const response = await fetch('crud_operations.php', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(detail)
+            });
+            const data = await response.json();
+            console.log(data);
+            fetchEmpDetails();
+        }
+
+        async function deleteEmpDetail(id) {
+            const response = await fetch('crud_operations.php', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id: id })
+            });
+            const data = await response.json();
+            console.log(data);
+            fetchEmpDetails();
+        }
+
+        function addRow() {
+            const tableBody = document.querySelector('#employee-table tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><input type="text" /></td>
+                <td><input type="text" /></td>
+                <td><input type="text" /></td>
+                <td><input type="text" /></td>
+                <td><button onclick="saveNewItem(this)">Save</button></td>
+                <td><button onclick="deleteNewItem(this)">Delete</button></td>
+            `;
+            tableBody.appendChild(newRow);
+        }
+
+        function saveNewItem(button) {
+            const row = button.parentElement.parentElement;
+            const id = row.querySelector('td:nth-child(1) input').value;
+            const score = row.querySelector('td:nth-child(2) input').value;
+            const behavior = row.querySelector('td:nth-child(3) input').value;
+            const goal = row.querySelector('td:nth-child(4) input').value;
+            const newDetail = {
+                id: id,
+                score: score,
+                behavior: behavior,
+                goal: goal
+            };
+            addEmpDetail(newDetail);
+        }
+
+        function deleteNewItem(button) {
+            const row = button.parentElement.parentElement;
+            row.remove();
+        }
+
+        function editItem(id, button) {
+            const row = button.parentElement.parentElement;
+            const score = row.querySelector('td:nth-child(2) input').value;
+            const behavior = row.querySelector('td:nth-child(3) input').value;
+            const goal = row.querySelector('td:nth-child(4) input').value;
+            const updatedDetail = {
+                id: id,
+                score: score,
+                behavior: behavior,
+                goal: goal
+            };
+            updateEmpDetail(updatedDetail);
+        }
+
+        function deleteItem(id) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                deleteEmpDetail(id);
+            }
+        }
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => section.style.display = 'none');
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function logout() {
+            if (confirm('Logged out!!')) {
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Show the employee details section by default
+        showSection('employee-details');
+    </script>
+</body>
+</html>
