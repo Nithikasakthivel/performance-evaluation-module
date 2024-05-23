@@ -3,7 +3,7 @@ The performance evaluation module is used to store the employee details and perf
 #first we have to login the form with username and password
 #If you don't have an account we have to register and then login into the account and then the dash board will open 
 #The registered username and password will store in the databse
-#Using add button we can add the employee deltails and using edit and delete button we can make changes in that column.
+#Using add button we can add the employee deltails and using delete button we can make changes in that column.
 Steps to run 
 #Open the XAMPP and enable start button for "apache" and "mysql"
 #click the "admin" button in XAMPP for the "mysql" after the page has been opened
